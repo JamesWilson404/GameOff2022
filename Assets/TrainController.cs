@@ -27,29 +27,11 @@ public class TrainController : MonoBehaviour
     private void ResolveInput()
     {
         bool enginesApplied = false;
-        if (Input.GetKey(KeyCode.A))
-        {
-            Speed = Mathf.Clamp(Speed - Acceleration, -MaxSpeed, MaxSpeed);
-            enginesApplied = true;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            Speed = Mathf.Clamp(Speed + Acceleration, -MaxSpeed, MaxSpeed);
-            enginesApplied = true;
-        }
+        var vDirection = Input.GetAxis("Vertical");
+        var hDirection = Input.GetAxis("Horizontal");
+        var direction = 0f;
 
-        if (!enginesApplied)
-        {
-            var direction = Input.GetAxis("Horizontal");
-            if (Mathf.Abs(direction) > 0.2f)
-            {
-                Speed += direction * Acceleration;
-                enginesApplied = true;
-            }
-        }
-
-
-        if (!enginesApplied)
+        if (vDirection == 0 && hDirection == 0)
         {
             if (Speed > 0)
             {
@@ -59,7 +41,39 @@ public class TrainController : MonoBehaviour
             {
                 Speed = Mathf.Min(0, Speed + Deceleration);
             }
+            return;
         }
+
+        if (Mathf.Abs(vDirection) > Mathf.Abs(hDirection))
+        {
+            direction = Mathf.Sign(vDirection);
+        }
+        else
+        {
+            direction = -Mathf.Sign(hDirection);
+        }
+
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            Speed = Mathf.Clamp(Speed - Acceleration, -MaxSpeed, MaxSpeed);
+            enginesApplied = true;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            Speed = Mathf.Clamp(Speed + Acceleration, -MaxSpeed, MaxSpeed);
+            enginesApplied = true;
+        }
+
+        if (!enginesApplied)
+        {
+            if (Mathf.Abs(direction) > 0.2f)
+            {
+                Speed += direction * -Acceleration;
+                enginesApplied = true;
+            }
+        }
+
 
 
 

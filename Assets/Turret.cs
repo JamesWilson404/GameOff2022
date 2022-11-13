@@ -10,9 +10,6 @@ public class Turret : MonoBehaviour
     [SerializeField] Transform TurretHead;
     [SerializeField] float RotationSpeed;
 
-    Transform enemy = null;
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -22,29 +19,29 @@ public class Turret : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (enemy != null)
-        {
-            var direction = enemy.position - transform.position;
-            direction.y = transform.position.y;
-
-            var rot = Quaternion.LookRotation(direction, Vector3.up);
-            TurretHead.rotation = Quaternion.RotateTowards(
-                                             TurretHead.rotation,
-                                             rot,
-                                             -RotationSpeed * Time.deltaTime);
-        }
-
+        ResolveInput();
     }
 
-
-    private void OnTriggerEnter(Collider other)
+    public void ResolveInput()
     {
-        if (other.transform.tag == "Enemy")
+        bool rdirection = Input.GetButton("Fire1");
+        bool ldirection = Input.GetButton("Fire2");
+        if (rdirection && ldirection)
         {
-            enemy = other.transform;
+            return;
         }
+
+        if (Input.GetKey(KeyCode.A) || rdirection)
+        {
+            TurretHead.Rotate(Vector3.up, -RotationSpeed);
+        }
+        else if (Input.GetKey(KeyCode.D) || ldirection)
+        {
+            TurretHead.Rotate(Vector3.up, RotationSpeed);
+        }
+
+
     }
 
-    
 
 }
