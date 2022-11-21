@@ -8,6 +8,7 @@ public class TrainController : MonoBehaviour
     [SerializeField] float MaxSpeed;
     [SerializeField] float Acceleration;
     [SerializeField] float Deceleration;
+    [SerializeField] float BrakingPower;
 
     float Speed;
 
@@ -16,65 +17,55 @@ public class TrainController : MonoBehaviour
     void Update()
     {
         ResolveInput();
-
-        if (Speed != 0)
-        {
-            transform.Translate(Speed, 0, 0);
-        }
-
+        Speed = Mathf.Clamp(Speed, -MaxSpeed, MaxSpeed);
+        transform.Translate(Speed * Time.deltaTime, 0, 0);
     }
 
     private void ResolveInput()
     {
-        bool enginesApplied = false;
-        var vDirection = Input.GetAxis("Vertical");
-        var hDirection = Input.GetAxis("Horizontal");
-        var direction = 0f;
+        bool thisFrameInput = false;
 
-        if (vDirection == 0 && hDirection == 0)
+        //  Right Movement
+        if (Input.GetKey(KeyCode.D))
         {
-            if (Speed > 0)
+            thisFrameInput = true;
+            if (Speed >= 0)
             {
-                Speed = Mathf.Max(0, Speed - Deceleration);
+                Speed += Acceleration;
             }
-            else if (Speed < 0)
+            else
             {
-                Speed = Mathf.Min(0, Speed + Deceleration);
+                Speed = Mathf.Clamp(Speed + Acceleration, -MaxSpeed, 0);
             }
-            return;
         }
 
-        if (Mathf.Abs(vDirection) > Mathf.Abs(hDirection))
+        //  Left Movement
+        if (Input.GetKey(KeyCode.A))
         {
-            direction = Mathf.Sign(vDirection);
-        }
-        else
-        {
-            direction = -Mathf.Sign(hDirection);
+            thisFrameInput = true;
+            if (Speed <= 0)
+            {
+                Speed -= Acceleration;
+            }
+            else
+            {
+                Speed = Mathf.Clamp(Speed - Acceleration, 0, MaxSpeed);
+            }
         }
 
-
-        if (Input.GetKey(KeyCode.W))
-        {
-            Speed = Mathf.Clamp(Speed - Acceleration, -MaxSpeed, MaxSpeed);
-            enginesApplied = true;
-        }
+        //  Braking
         if (Input.GetKey(KeyCode.S))
         {
-            Speed = Mathf.Clamp(Speed + Acceleration, -MaxSpeed, MaxSpeed);
-            enginesApplied = true;
-        }
-
-        if (!enginesApplied)
-        {
-            if (Mathf.Abs(direction) > 0.2f)
+            if (Speed < 0)
             {
-                Speed += direction * -Acceleration;
-                enginesApplied = true;
+                Speed = Mathf.Clamp(Speed + BrakingPower, -MaxSpeed, 0);
+            }
+            else if (Speed > 0)
+            {
+                Speed = Mathf.Clamp(Speed - BrakingPower, 0, MaxSpeed);
             }
         }
-
-
+        
 
 
     }

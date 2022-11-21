@@ -5,9 +5,8 @@ using UnityEngine;
 public class Turret : MonoBehaviour
 {
     [SerializeField] Animator Animator;
-    [SerializeField] Collider TurretCollider;
-
     [SerializeField] Transform TurretHead;
+    [SerializeField] Transform Muzzle;
     [SerializeField] float RotationSpeed;
 
     // Start is called before the first frame update
@@ -20,28 +19,20 @@ public class Turret : MonoBehaviour
     void Update()
     {
         ResolveInput();
+        Debug.DrawRay(Muzzle.position, TurretHead.forward);
     }
 
     public void ResolveInput()
     {
-        bool rdirection = Input.GetButton("Fire1");
-        bool ldirection = Input.GetButton("Fire2");
-        if (rdirection && ldirection)
-        {
-            return;
-        }
+        var direction = Input.GetAxis("CanonRotate");
+        TurretHead.Rotate(Vector3.up, RotationSpeed * direction);
 
-        if (Input.GetKey(KeyCode.A) || rdirection)
-        {
-            TurretHead.Rotate(Vector3.up, -RotationSpeed);
-        }
-        else if (Input.GetKey(KeyCode.D) || ldirection)
-        {
-            TurretHead.Rotate(Vector3.up, RotationSpeed);
-        }
-
+        Animator.SetBool("Fire", Input.GetButton("Fire1"));
 
     }
 
-
+    public void ShootTurret()
+    {
+        AudioManager.Instance.PlaySound(SoundFX.LASER_SHOOT);
+    }
 }
